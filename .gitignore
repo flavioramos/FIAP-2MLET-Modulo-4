@@ -224,3 +224,12 @@ cython_debug/
 
 dataset/
 .vscode
+
+# ignore .venv on any subfolder
+**/.venv
+
+# ignore .env on any subfolder
+**/.env
+
+# ignore .terraoform on any subfolder
+**/.terraform*
