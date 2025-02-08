@@ -1,0 +1,15 @@
+artifact_uri: file:///home/flavioramos/projects/fiap/FIAP-2MLET-Modulo-4/src/flask_model_server/mlruns/0/ce0bd9a65d2a4bdbb075fb4c0621db9e/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: ce0bd9a65d2a4bdbb075fb4c0621db9e
+run_name: worried-rook-259
+run_uuid: ce0bd9a65d2a4bdbb075fb4c0621db9e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738966196402
+status: 1
+tags: []
+user_id: flavioramos

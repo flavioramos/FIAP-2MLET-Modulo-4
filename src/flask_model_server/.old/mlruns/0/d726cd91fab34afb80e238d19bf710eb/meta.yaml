@@ -1,0 +1,15 @@
+artifact_uri: file:///home/flavioramos/projects/fiap/FIAP-2MLET-Modulo-4/src/flask_model_server/mlruns/0/d726cd91fab34afb80e238d19bf710eb/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d726cd91fab34afb80e238d19bf710eb
+run_name: serious-frog-438
+run_uuid: d726cd91fab34afb80e238d19bf710eb
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738966164420
+status: 1
+tags: []
+user_id: flavioramos

@@ -1,0 +1,15 @@
+artifact_uri: file:///home/flavioramos/projects/fiap/FIAP-2MLET-Modulo-4/src/flask_model_server/mlruns/0/56d1b362102f435898a52241f589a812/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 56d1b362102f435898a52241f589a812
+run_name: kindly-auk-375
+run_uuid: 56d1b362102f435898a52241f589a812
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1738966217072
+status: 1
+tags: []
+user_id: flavioramos

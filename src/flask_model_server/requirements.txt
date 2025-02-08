@@ -1,0 +1,7 @@
+Flask
+torch
+numpy
+pandas
+yfinance
+scikit-learn
+mlflow
