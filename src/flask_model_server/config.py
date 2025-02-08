@@ -33,6 +33,7 @@ print(f"LOGS_DIR: {LOGS_DIR}")
 MODEL_LOCAL_PATH = os.path.join(ARTIFACTS_DIR, "model_lstm.pt")
 SCALER_LOCAL_PATH = os.path.join(ARTIFACTS_DIR, "scaler.pkl")
 LAST_UPDATE_FILE = os.path.join(ARTIFACTS_DIR, "last_update.txt")
+STEP_COUNT_FILE = os.path.join(ARTIFACTS_DIR, "step_count.txt")
 
 # Configuração do dispositivo para PyTorch
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
