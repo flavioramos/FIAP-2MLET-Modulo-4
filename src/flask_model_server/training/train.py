@@ -8,11 +8,12 @@ from datetime import datetime, timedelta
 from models.lstm_model import LSTMModel
 from utils.config_loader import load_parameters
 from utils.data_utils import download_data_from_yfinance, preprocess_data
-from config import MODEL_LOCAL_PATH, SCALER_LOCAL_PATH, LAST_UPDATE_FILE, DEVICE
+from config import LOGS_DIR, MODEL_LOCAL_PATH, SCALER_LOCAL_PATH, LAST_UPDATE_FILE, DEVICE
 
 # Configura o tracking URI do MLflow para usar um banco SQLite localizado no diretório de logs.
 # Importante: Para caminhos absolutos no Linux, o esquema 'sqlite' exige 4 barras.
-mlflow.set_tracking_uri("sqlite:////app/mlflow_logs/mlflow.db")
+mlflow.set_tracking_uri("sqlite:///" + os.path.join(LOGS_DIR, "mlflow.db"))
+mlflow.set_experiment("stock_prediction")
 
 def get_last_update():
     if os.path.exists(LAST_UPDATE_FILE):
