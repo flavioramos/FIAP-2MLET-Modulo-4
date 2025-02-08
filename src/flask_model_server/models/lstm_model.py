@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+from config import DEVICE
 
 class LSTMModel(nn.Module):
     def __init__(self, input_size=1, hidden_size=100, num_layers=1, output_size=1):
@@ -15,8 +14,8 @@ class LSTMModel(nn.Module):
         self.fc2 = nn.Linear(hidden_size, output_size)
 
     def forward(self, x):
-        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(DEVICE)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(DEVICE)
         out, _ = self.lstm1(x, (h0, c0))
         out = self.fc1(out[:, -1, :])
         out = self.sigmoid(out)

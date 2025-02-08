@@ -1,13 +1,15 @@
 # config.py
 import os
 import torch
+import sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOCAL = sys.argv[-1] == 'local' # sessão local ou remota (container)
 
-print(f"LOCAL_ENV: {os.getenv('LOCAL_ENV') == '1'}")
+print(f"Running locally: {LOCAL}")
 
 # Diretório para armazenar os artefatos do treinamento (modelo, scaler, last_update, etc.)
-if os.getenv('LOCAL_ENV') == '1':
+if LOCAL:
     ARTIFACTS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../local_artifacts/training_artifacts"))
 else:
     ARTIFACTS_DIR = os.path.join(BASE_DIR, "training_artifacts")
@@ -18,8 +20,7 @@ if not os.path.exists(ARTIFACTS_DIR):
 print(f"ARTIFACTS_DIR: {ARTIFACTS_DIR}")
 
 # Diretório para armazenar os logs do MLflow
-LOGS_DIR = os.path.join(BASE_DIR, "mlflow_logs")
-if os.getenv('LOCAL_ENV') == '1':
+if LOCAL:
     LOGS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../local_artifacts/mlflow_logs"))
 else:
     LOGS_DIR = os.path.join(BASE_DIR, "mlflow_logs")
