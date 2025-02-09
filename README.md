@@ -155,10 +155,6 @@ A aplicação Flask expõe os seguintes endpoints:
   - Exemplo: `/predict?date=2025-01-15`  
 - **Retorno:** JSON com o valor predito e, se disponível, o valor real para comparação.
 
-**GET /artifacts**  
-- **Descrição:** Lista os artefatos gerados durante o treinamento (modelo, scaler, arquivos de configuração, etc).  
-- **Retorno:** JSON contendo a lista de artefatos.
-
 ## Parâmetros e Configurações
 
 **config.py:**  
