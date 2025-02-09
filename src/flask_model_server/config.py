@@ -44,9 +44,9 @@ print(f"LOGS_DIR: {LOGS_DIR}")
 
 # Diretório para armazenar os parâmetros
 if LOCAL:
-    PARAMS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../local_storage/params"))
+    PARAMS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../local_storage/parameters"))
 else:
-    PARAMS_DIR = os.path.abspath(os.path.join("/storage/", "params"))
+    PARAMS_DIR = os.path.abspath(os.path.join("/storage/", "parameters"))
 
 if not os.path.exists(PARAMS_DIR):
     os.makedirs(PARAMS_DIR)
