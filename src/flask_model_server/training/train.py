@@ -13,7 +13,7 @@ from config import LOGS_DIR, MODEL_LOCAL_PATH, SCALER_LOCAL_PATH, LAST_UPDATE_FI
 mlflow.set_tracking_uri("sqlite:///" + os.path.join(LOGS_DIR, "mlflow.db"))
 mlflow.set_experiment("stock_prediction")
 
-def get_last_update():
+def get_last_update(params):
     if os.path.exists(LAST_UPDATE_FILE):
         try:
             with open(LAST_UPDATE_FILE, "r") as f:
@@ -22,7 +22,6 @@ def get_last_update():
         except Exception:
             pass
     # Se não houver last_update, usa DATE_ZERO de params.txt
-    params = load_parameters()
     date_zero_str = params.get("DATE_ZERO", "2010-01-01")
     return datetime.strptime(date_zero_str, "%Y-%m-%d").date()
 
@@ -70,7 +69,7 @@ def run_training(reset=False):
         mlflow.log_param("learning_rate", learning_rate)
         mlflow.log_param("ticker", ticker)
 
-        last_update = get_last_update()
+        last_update = get_last_update(params)
         df = download_data_from_yfinance(last_update, ticker)
         if df is None:
             return {"error": "Erro ao baixar dados do Yahoo Finance"}

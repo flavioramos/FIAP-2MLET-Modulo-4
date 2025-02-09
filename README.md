@@ -52,8 +52,7 @@ O projeto está preparado para execução via Docker, com dois serviços (Flask 
 │   │   └── predict.py             # Script para realizar predições
 │   └── utils/
 │       ├── config_loader.py       # Carrega os parâmetros de configuração
-│       ├── data_utils.py          # Funções para download e pré-processamento de dados
-│       └── file_utils.py          # Funções utilitárias para manipulação de arquivos
+│       └── data_utils.py          # Funções para download e pré-processamento de dados
 └── mlflow_server/
     ├── Dockerfile                 # Dockerfile para construir a imagem do servidor MLflow
     ├── local_run.sh               # Script para execução local do servidor MLflow
