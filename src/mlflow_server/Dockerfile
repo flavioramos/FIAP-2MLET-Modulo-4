@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5001
 
 # Comando para iniciar a aplicação Flask
-CMD ["mlflow", "server", "--backend-store-uri", "sqlite:////artifacts/mlflow_logs/mlflow.db", "--default-artifact-root", "file:////artifacts/training_artifacts", "--host", "0.0.0.0", "--port", "5001"]
+CMD ["mlflow", "server", "--backend-store-uri", "sqlite:////storage/mlflow_logs/mlflow.db", "--default-artifact-root", "file:////storage/training_artifacts", "--host", "0.0.0.0", "--port", "5001"]

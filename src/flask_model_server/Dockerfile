@@ -14,6 +14,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
 
+COPY default_params.txt /storage/parameters/params.txt
+
 # Copia todo o código fonte para dentro do container
 COPY . .
 

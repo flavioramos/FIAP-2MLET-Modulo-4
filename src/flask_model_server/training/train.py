@@ -45,13 +45,13 @@ def set_step_count(step):
 
 def run_training(reset=False):
     params = load_parameters()
-    ticker = params.get("TICKER", "AAPL")
-    sequence_length = int(params.get("SEQUENCE_LENGTH", 5))
-    epochs = int(params.get("EPOCHS", 100))
-    learning_rate = float(params.get("LEARNING_RATE", 0.0005))
-    hidden_size = int(params.get("HIDDEN_SIZE", 100))
-    num_layers = int(params.get("NUM_LAYERS", 3))
-    date_zero_str = params.get("DATE_ZERO", "2010-01-01")
+    ticker = params.get("TICKER")
+    sequence_length = int(params.get("SEQUENCE_LENGTH"))
+    epochs = int(params.get("EPOCHS"))
+    learning_rate = float(params.get("LEARNING_RATE"))
+    hidden_size = int(params.get("HIDDEN_SIZE"))
+    num_layers = int(params.get("NUM_LAYERS"))
+    date_zero_str = params.get("DATE_ZERO")
 
     step = get_step_count()
 
