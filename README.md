@@ -31,7 +31,7 @@ O projeto está preparado para execução via Docker, com dois serviços (Flask 
 
 ## Estrutura do Projeto
 
-\`\`\`
+```
 ├── docker-compose.yaml            # Define os serviços (flask_model_server e mlflow_server)
 ├── .env                           # Variáveis de ambiente para o Docker Compose
 ├── flask_model_server/            
@@ -55,7 +55,7 @@ O projeto está preparado para execução via Docker, com dois serviços (Flask 
     ├── local_run.sh               # Script para execução local do servidor MLflow
     ├── local_setup.sh             # Script para setup do ambiente virtual do MLflow
     └── requirements.txt           # Dependências do MLflow (ex: mlflow==2.17.1)
-\`\`\`
+```
 
 ## Pré-requisitos
 
@@ -71,13 +71,13 @@ Instale o Docker e o Docker Compose caso ainda não os possua.
 
 Na raiz do projeto, execute o comando:
 
-\`\`\`bash
+```bash
 docker-compose up --build
-\`\`\`
+```
 
 Esse comando irá:
-- Construir e iniciar o container do \`flask_model_server\` (API Flask na porta 5000).
-- Construir e iniciar o container do \`mlflow_server\` (servidor MLflow na porta 5001).
+- Construir e iniciar o container do `flask_model_server` (API Flask na porta 5000).
+- Construir e iniciar o container do `mlflow_server` (servidor MLflow na porta 5001).
 
 **Volumes:**  
 Os volumes configurados garantem a persistência de:
@@ -91,46 +91,46 @@ Caso prefira executar a aplicação sem Docker:
 
 #### Para o Servidor Flask
 
-Navegue até o diretório \`flask_model_server\`:
+Navegue até o diretório `flask_model_server`:
 
-\`\`\`bash
+```bash
 cd flask_model_server
-\`\`\`
+```
 
 Configure o ambiente virtual e instale as dependências:
 
-\`\`\`bash
+```bash
 ./local_setup.sh
-\`\`\`
+```
 
 Inicie a aplicação localmente:
 
-\`\`\`bash
+```bash
 ./local_run.sh
-\`\`\`
+```
 
 A aplicação estará disponível em:  
 http://localhost:5000
 
 #### Para o Servidor MLflow
 
-Navegue até o diretório \`mlflow_server\`:
+Navegue até o diretório `mlflow_server`:
 
-\`\`\`bash
+```bash
 cd mlflow_server
-\`\`\`
+```
 
 Configure o ambiente virtual e instale as dependências:
 
-\`\`\`bash
+```bash
 ./local_setup.sh
-\`\`\`
+```
 
 Inicie o servidor MLflow:
 
-\`\`\`bash
+```bash
 ./local_run.sh
-\`\`\`
+```
 
 O MLflow estará disponível em:  
 http://localhost:5001
@@ -141,14 +141,14 @@ A aplicação Flask expõe os seguintes endpoints:
 
 **GET /train**  
 - **Descrição:** Inicia o processo de treinamento do modelo.  
-- **Parâmetro Opcional:** \`reset\`  
-  - Exemplo: \`/train?reset=true\` (para reiniciar o treinamento do zero definindo a data inicial).  
+- **Parâmetro Opcional:** `reset`  
+  - Exemplo: `/train?reset=true` (para reiniciar o treinamento do zero definindo a data inicial).  
 - **Retorno:** JSON contendo métricas do treinamento (loss, mae, rmse, mape).
 
 **GET /predict**  
 - **Descrição:** Realiza a predição do preço de fechamento para uma data específica.  
-- **Parâmetro Obrigatório:** \`date\` no formato YYYY-MM-DD  
-  - Exemplo: \`/predict?date=2025-01-15\`  
+- **Parâmetro Obrigatório:** `date` no formato YYYY-MM-DD  
+  - Exemplo: `/predict?date=2025-01-15`  
 - **Retorno:** JSON com o valor predito e, se disponível, o valor real para comparação.
 
 **GET /artifacts**  
@@ -167,15 +167,15 @@ O script adapta os caminhos conforme o ambiente (local ou container).
 
 **default_params.txt:**  
 Contém os parâmetros padrão para o treinamento, como:
-- \`TICKER\` – Símbolo da ação (ex: AAPL)
-- \`SEQUENCE_LENGTH\` – Comprimento da sequência de entrada
-- \`EPOCHS\` – Número de épocas de treinamento
-- \`LEARNING_RATE\` – Taxa de aprendizado
-- \`HIDDEN_SIZE\` – Número de neurônios na camada oculta
-- \`NUM_LAYERS\` – Número de camadas LSTM
-- \`DATE_ZERO\` – Data inicial para o treinamento
+- `TICKER` – Símbolo da ação (ex: AAPL)
+- `SEQUENCE_LENGTH` – Comprimento da sequência de entrada
+- `EPOCHS` – Número de épocas de treinamento
+- `LEARNING_RATE` – Taxa de aprendizado
+- `HIDDEN_SIZE` – Número de neurônios na camada oculta
+- `NUM_LAYERS` – Número de camadas LSTM
+- `DATE_ZERO` – Data inicial para o treinamento
 
-Para alterar os parâmetros, edite o arquivo \`params.txt\` que é copiado para o diretório de parâmetros conforme as configurações definidas.
+Para alterar os parâmetros, edite o arquivo `params.txt` que é copiado para o diretório de parâmetros conforme as configurações definidas.
 
 ## Monitoramento com MLflow
 
