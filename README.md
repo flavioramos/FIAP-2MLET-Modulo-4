@@ -17,6 +17,10 @@ Este projeto implementa uma aplicação para treinamento e previsão de preços 
 
 ## Características do Projeto
 
+
+![Diagrama do Projeto](https://lh3.googleusercontent.com/d/1tnj2kYu3lI3pXmBH3kHeaiyqVh5Z7hoi)
+
+
 **Treinamento de Modelo:**  
 Utiliza dados históricos de ações (obtidos via Yahoo Finance) para treinar um modelo LSTM que realiza previsões de preços de fechamento.
 
@@ -186,16 +190,3 @@ Durante o treinamento, os parâmetros, métricas e artefatos são registrados no
 A interface do MLflow pode ser acessada através de http://localhost:5001.
 
 Utilize esta interface para visualizar o histórico dos experimentos, comparações de métricas e download dos artefatos gerados.
-
-## Contribuição
-
-Contribuições são bem-vindas! Se desejar melhorar este projeto, sinta-se à vontade para:
-- Abrir issues para relatar problemas ou sugerir melhorias.
-- Enviar pull requests com novas funcionalidades ou correções.
-
-## Licença
-
-Este projeto está licenciado sob a **[Inserir Nome da Licença]**.  
-(Substitua com a licença apropriada ou remova esta seção, se necessário.)
-
-Este README fornece uma visão geral completa do projeto, instruindo como configurar, executar e utilizar a aplicação para treinamento e predição de preços de ações com LSTM e MLflow. Se surgirem dúvidas ou sugestões, por favor, entre em contato!
