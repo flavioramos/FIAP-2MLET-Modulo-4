@@ -233,4 +233,4 @@ dataset/
 
 # ignore .terraoform on any subfolder
 **/.terraform*
-local_artifacts
+local_storage

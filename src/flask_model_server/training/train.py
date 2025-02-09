@@ -4,7 +4,7 @@ import mlflow
 import numpy as np
 import torch
 import torch.optim as optim
-from datetime import datetime, timedelta
+from datetime import datetime
 from models.lstm_model import LSTMModel
 from utils.config_loader import load_parameters
 from utils.data_utils import download_data_from_yfinance, preprocess_data

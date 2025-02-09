@@ -1,7 +1,9 @@
 import os
+from config import PARAMS_DIR
 
-def load_parameters(file_path="params.txt"):
+def load_parameters():
     params = {}
+    file_path = f"{PARAMS_DIR}/params.txt"
     if os.path.exists(file_path):
         with open(file_path, "r") as f:
             for line in f:

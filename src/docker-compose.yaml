@@ -8,8 +8,9 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - training_artifacts:/artifacts/training_artifacts
-      - mlflow_logs:/artifacts/mlflow_logs
+      - training_artifacts:/storage/training_artifacts
+      - mlflow_logs:/storage/mlflow_logs
+      - parameters:/storage/parameters
 
   mlflow_server:
     build:
@@ -18,9 +19,10 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - training_artifacts:/artifacts/training_artifacts
-      - mlflow_logs:/artifacts/mlflow_logs
+      - training_artifacts:/storage/training_artifacts
+      - mlflow_logs:/storage/mlflow_logs
 
 volumes:
   mlflow_logs: 
   training_artifacts: 
+  parameters:
