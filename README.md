@@ -28,7 +28,7 @@ Utiliza dados históricos de ações (obtidos via Yahoo Finance) para treinar um
 A API permite que se realize predições para datas futuras (ou para comparar com dados históricos).
 
 **Tracking com MLflow:**  
-Registra os parâmetros, métricas (loss, MAE, RMSE, MAPE) e artefatos (modelo treinado, scaler, etc) para acompanhamento dos experimentos.
+Registra os parâmetros, métricas (loss, MAE, RMSE, MAPE) e artefatos (modelo treinado, scaler, etc) para monitoramento dos experimentos.
 
 **Containerização:**  
 O projeto está preparado para execução via Docker, com dois serviços (Flask e MLflow) orquestrados por Docker Compose.
