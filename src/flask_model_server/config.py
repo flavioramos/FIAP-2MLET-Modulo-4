@@ -12,7 +12,7 @@ print(f"Running locally: {LOCAL}")
 if LOCAL:
     ARTIFACTS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../local_artifacts/training_artifacts"))
 else:
-    ARTIFACTS_DIR = os.path.join(BASE_DIR, "training_artifacts")
+    ARTIFACTS_DIR = os.path.abspath(os.path.join("/artifacts/", "training_artifacts"))
 
 if not os.path.exists(ARTIFACTS_DIR):
     os.makedirs(ARTIFACTS_DIR)
@@ -23,7 +23,7 @@ print(f"ARTIFACTS_DIR: {ARTIFACTS_DIR}")
 if LOCAL:
     LOGS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../local_artifacts/mlflow_logs"))
 else:
-    LOGS_DIR = os.path.join(BASE_DIR, "mlflow_logs")
+    LOGS_DIR = os.path.abspath(os.path.join("/artifacts/", "mlflow_logs"))
 
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
