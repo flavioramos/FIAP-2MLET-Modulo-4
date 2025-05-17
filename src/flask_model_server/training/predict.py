@@ -1,9 +1,7 @@
 import os
 import joblib
 import pandas as pd
-from datetime import datetime
-from utils.config_loader import load_parameters
-from config import MODEL_LOCAL_PATH
+from config import MODEL_LOCAL_PATH, STATUS_MAP
 
 def run_prediction(job_description, candidate_cv):
     """
@@ -29,9 +27,9 @@ def run_prediction(job_description, candidate_cv):
 
         # Prepare input data
         input_data = pd.DataFrame([{
-            "vaga_perfil_principais_atividades": job_description.get("principais_atividades", ""),
-            "vaga_perfil_competencia_tecnicas_e_comportamentais": job_description.get("competencia_tecnicas_e_comportamentais", ""),
-            "cv_pt": candidate_cv
+            "job_description": job_description.get("principais_atividades", ""),
+            "job_requirements": job_description.get("competencia_tecnicas_e_comportamentais", ""),
+            "candidate_cv": candidate_cv
         }])
 
         # Make prediction
