@@ -67,3 +67,55 @@ STEP_COUNT_FILE = os.path.join(ARTIFACTS_DIR, "step_count.txt")
 
 # Configuração do dispositivo para PyTorch
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+STATUS_MAP = {
+    "Encaminhado ao Requisitante":        0,
+    "Contratado pela Decision":           1,
+    "Desistiu":                           0,
+    "Documentação PJ":                    1,
+    "Não Aprovado pelo Cliente":          0,
+    "Prospect":                           0,
+    "Não Aprovado pelo RH":               0,
+    "Aprovado":                           1,
+    "Não Aprovado pelo Requisitante":     0,
+    "Inscrito":                           0,
+    "Entrevista Técnica":                 0,
+    "Em avaliação pelo RH":               0,
+    "Contratado como Hunting":            1,
+    "Desistiu da Contratação":            0,
+    "Entrevista com Cliente":             0,
+    "Documentação CLT":                   1,
+    "Recusado":                           0,
+    "Documentação Cooperado":             1,
+    "Sem interesse nesta vaga":           0,
+    "Encaminhar Proposta":                1,
+    "Proposta Aceita":                    1
+}
+
+# Training parameters
+TEST_SIZE = 0.2
+RANDOM_STATE = 42
+
+# TF-IDF parameters
+TFIDF_JOB_DESCRIPTION_MAX_FEATURES = 1000
+TFIDF_JOB_DESCRIPTION_NGRAM_RANGE = (1, 2)
+
+TFIDF_JOB_REQUIREMENTS_MAX_FEATURES = 1000
+TFIDF_JOB_REQUIREMENTS_NGRAM_RANGE = (1, 2)
+
+TFIDF_CANDIDATE_CV_MAX_FEATURES = 5000
+TFIDF_CANDIDATE_CV_NGRAM_RANGE = (1, 2)
+
+# Logistic Regression parameters
+LOGISTIC_REGRESSION_MAX_ITER = 1000
+
+# Grid Search parameters
+GRID_SEARCH_CV = 5
+GRID_SEARCH_SCORING = "roc_auc"
+GRID_SEARCH_N_JOBS = -1
+GRID_SEARCH_C_VALUES = [0.1, 1, 10]
+
+# Data paths
+APPLICANTS_PATH = "../../data/raw/applicants.json"
+VAGAS_PATH = "../../data/raw/vagas.json"
+PROSPECTS_PATH = "../../data/raw/prospects.json"

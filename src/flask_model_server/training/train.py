@@ -3,45 +3,28 @@ import json
 import joblib
 import mlflow
 import pandas as pd
-from datetime import datetime
-from sklearn.compose import ColumnTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+
 from utils.config_loader import load_parameters
-from config import LOGS_DIR, MODEL_LOCAL_PATH, STEP_COUNT_FILE
+from config import (
+    LOGS_DIR, MODEL_LOCAL_PATH, STEP_COUNT_FILE, STATUS_MAP,
+    TEST_SIZE, RANDOM_STATE,
+    TFIDF_JOB_DESCRIPTION_MAX_FEATURES, TFIDF_JOB_DESCRIPTION_NGRAM_RANGE,
+    TFIDF_JOB_REQUIREMENTS_MAX_FEATURES, TFIDF_JOB_REQUIREMENTS_NGRAM_RANGE,
+    TFIDF_CANDIDATE_CV_MAX_FEATURES, TFIDF_CANDIDATE_CV_NGRAM_RANGE,
+    LOGISTIC_REGRESSION_MAX_ITER,
+    GRID_SEARCH_CV, GRID_SEARCH_SCORING, GRID_SEARCH_N_JOBS, GRID_SEARCH_C_VALUES,
+    APPLICANTS_PATH, VAGAS_PATH, PROSPECTS_PATH
+)
+from models.job_matching_model import train_model
 
 mlflow.set_tracking_uri("sqlite:///" + os.path.join(LOGS_DIR, "mlflow.db"))
 mlflow.set_experiment("job_matching")
-
-applicants_path = "../../data/raw/applicants.json"
-vagas_path = "../../data/raw/vagas.json"
-prospects_path = "../../data/raw/prospects.json"
-status_map = {
-    "Encaminhado ao Requisitante":        0,
-    "Contratado pela Decision":           1,
-    "Desistiu":                           0,
-    "Documentação PJ":                    1,
-    "Não Aprovado pelo Cliente":          0,
-    "Prospect":                           0,
-    "Não Aprovado pelo RH":               0,
-    "Aprovado":                           1,
-    "Não Aprovado pelo Requisitante":     0,
-    "Inscrito":                           0,
-    "Entrevista Técnica":                 0,
-    "Em avaliação pelo RH":               0,
-    "Contratado como Hunting":            1,
-    "Desistiu da Contratação":            0,
-    "Entrevista com Cliente":             0,
-    "Documentação CLT":                   1,
-    "Recusado":                           0,
-    "Documentação Cooperado":             1,
-    "Sem interesse nesta vaga":           0,
-    "Encaminhar Proposta":                1,
-    "Proposta Aceita":                    1
-}
 
 def get_step_count():
     if os.path.exists(STEP_COUNT_FILE):
@@ -58,14 +41,14 @@ def set_step_count(step):
 
 def read_jsons():
     print(f"\n=== Loading JSON files ===")
-    print(f"Loading applicants from: {applicants_path}")
-    with open(applicants_path, encoding='utf-8') as f:
+    print(f"Loading applicants from: {APPLICANTS_PATH}")
+    with open(APPLICANTS_PATH, encoding='utf-8') as f:
         applicants = json.load(f)
-    print(f"Loading vagas from: {vagas_path}")
-    with open(vagas_path, encoding='utf-8') as f:
+    print(f"Loading vagas from: {VAGAS_PATH}")
+    with open(VAGAS_PATH, encoding='utf-8') as f:
         vagas = json.load(f)
-    print(f"Loading prospects from: {prospects_path}")
-    with open(prospects_path, encoding='utf-8') as f:
+    print(f"Loading prospects from: {PROSPECTS_PATH}")
+    with open(PROSPECTS_PATH, encoding='utf-8') as f:
         prospects = json.load(f)
 
     return applicants, vagas, prospects
@@ -106,37 +89,7 @@ def run_training():
         if df.empty:
             return {"error": "DataFrame vazio após ETL. Verifique os JSONs em base_path."}
 
-        x = df[["job_description","job_requirements","candidate_cv"]]
-        y = df["status"].map(status_map)
-
-        X_train, X_test, y_train, y_test = train_test_split(x, y, stratify=y, test_size=0.2, random_state=42)
-
-        # Create preprocessing pipeline
-        preprocessor = ColumnTransformer([
-            ("tfidf_ativ", TfidfVectorizer(max_features=1000, ngram_range=(1,2)),
-                "job_description"),
-            ("tfidf_comp", TfidfVectorizer(max_features=1000, ngram_range=(1,2)),
-                "job_requirements"),
-            ("tfidf_cv",   TfidfVectorizer(max_features=5000, ngram_range=(1,2)),
-                "candidate_cv"),
-        ], remainder="drop")
-
-        # Create full pipeline
-        pipeline = Pipeline([
-            ("pre", preprocessor),
-            ("clf", LogisticRegression(max_iter=1000))
-        ])
-
-        grid = GridSearchCV(
-            pipeline, {"clf__C": [0.1, 1, 10]},
-            cv=5, scoring="roc_auc", n_jobs=-1
-        )
-        grid.fit(X_train, y_train)
-
-        # Final evaluation
-        y_pred = grid.predict_proba(X_test)[:, 1]
-        auc = roc_auc_score(y_test, y_pred)
-        print(f"AUC no conjunto de teste: {auc:.4f}")
+        auc, grid = train_model(df)
 
         # Log metrics
         mlflow.log_metric("auc", auc, step=step)
