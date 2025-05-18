@@ -1,10 +1,22 @@
+"""Configuration loader module.
+
+This module provides functionality to load parameters from a configuration file.
+"""
+
 import os
 from config import PARAMS_DIR
 
+
 def load_parameters():
+    """Load parameters from the configuration file.
+    
+    Returns:
+        dict: Dictionary containing the loaded parameters
+    """
     params = {}
     file_path = f"{PARAMS_DIR}/params.txt"
-    print(f"Carregando parâmetros de {file_path}")
+    print(f"Loading parameters from {file_path}")
+    
     if os.path.exists(file_path):
         with open(file_path, "r") as f:
             for line in f:
@@ -22,5 +34,6 @@ def load_parameters():
                         except ValueError:
                             params[key] = value
     else:
-        print(f"Arquivo {file_path} não encontrado. Usando parâmetros padrão.")
+        print(f"File {file_path} not found. Using default parameters.")
+    
     return params

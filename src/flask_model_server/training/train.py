@@ -1,3 +1,9 @@
+"""Training module for job matching model.
+
+This module provides functionality to train the job matching model using MLflow
+for experiment tracking and model management.
+"""
+
 import os
 import json
 import joblib
@@ -26,10 +32,16 @@ from config import (
 )
 from models.job_matching_model import train_model
 
+# Set up MLflow
 mlflow.set_tracking_uri("sqlite:///" + os.path.join(LOGS_DIR, "mlflow.db"))
 mlflow.set_experiment("job_matching")
 
 def get_step_count():
+    """Get the current training step count.
+    
+    Returns:
+        int: Current step count, or 0 if not found
+    """
     if os.path.exists(STEP_COUNT_FILE):
         try:
             with open(STEP_COUNT_FILE, "r") as f:
@@ -39,10 +51,20 @@ def get_step_count():
     return 0
 
 def set_step_count(step):
+    """Set the current training step count.
+    
+    Args:
+        step (int): Step count to save
+    """
     with open(STEP_COUNT_FILE, "w") as f:
         f.write(str(step))
 
 def read_jsons():
+    """Read and load JSON data files.
+    
+    Returns:
+        tuple: (applicants, vagas, prospects) dictionaries
+    """
     print(f"\n=== Loading JSON files ===")
     print(f"Loading applicants from: {APPLICANTS_PATH}")
     with open(APPLICANTS_PATH, encoding='utf-8') as f:
@@ -58,6 +80,12 @@ def read_jsons():
 
 
 def load_and_consolidate_jsons():
+    """Load and consolidate data from JSON files into a DataFrame.
+    
+    Returns:
+        pd.DataFrame: Consolidated data with job descriptions, requirements,
+                     candidate CVs, and status
+    """
     applicants, vagas, prospects = read_jsons()
 
     rows = []
@@ -78,8 +106,12 @@ def load_and_consolidate_jsons():
     return pd.DataFrame(rows)
 
 def run_training():
+    """Run the model training process.
+    
+    Returns:
+        dict: Training results including metrics and model information
+    """
     params = load_parameters()
-
     step = get_step_count()
 
     with mlflow.start_run():
@@ -87,7 +119,7 @@ def run_training():
         df = load_and_consolidate_jsons()
 
         if df.empty:
-            return {"error": "DataFrame vazio após ETL. Verifique os JSONs em base_path."}
+            return {"error": "Empty DataFrame after ETL. Check JSONs in base_path."}
 
         # Log data statistics
         mlflow.log_metric("total_samples", len(df), step=step)
@@ -145,12 +177,12 @@ def run_training():
         # Save model
         os.makedirs(os.path.dirname(MODEL_LOCAL_PATH), exist_ok=True)
         joblib.dump(grid.best_estimator_, MODEL_LOCAL_PATH)
-        print(f"Modelo salvo em: {MODEL_LOCAL_PATH}")
+        print(f"Model saved at: {MODEL_LOCAL_PATH}")
 
         set_step_count(step + 1)
         
         return {
-            "status": "Treinamento concluído com sucesso!",
+            "status": "Training completed successfully!",
             "auc": float(auc),
             "best_c": float(grid.best_params_["clf__C"]),
             "best_cv_score": float(grid.best_score_),

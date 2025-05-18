@@ -1,4 +1,9 @@
-# app.py
+"""Flask application for job matching model training and prediction.
+
+This module provides REST API endpoints for training the job matching model
+and making predictions using the trained model.
+"""
+
 import os
 from flask import Flask, request, jsonify
 from training.train import run_training
@@ -8,11 +13,21 @@ app = Flask(__name__)
 
 @app.route("/train", methods=["GET"])
 def train():
+    """Train the job matching model.
+    
+    Returns:
+        tuple: JSON response with training results and HTTP status code
+    """
     result = run_training()
     return jsonify(result), 200
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    """Make a prediction using the trained model.
+    
+    Returns:
+        tuple: JSON response with prediction results and HTTP status code
+    """
     data = request.get_json()
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
