@@ -9,7 +9,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-
 from utils.config_loader import load_parameters
 from config import (
     LOGS_DIR, MODEL_LOCAL_PATH, STEP_COUNT_FILE, STATUS_MAP,

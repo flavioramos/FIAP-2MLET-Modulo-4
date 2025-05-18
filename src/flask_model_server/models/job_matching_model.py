@@ -22,12 +22,6 @@ from config import (
     LOGISTIC_REGRESSION_MAX_ITER,
 )
 
-import nltk
-from nltk.corpus import stopwords
-nltk.download("stopwords", quiet=True)
-PT_STOPWORDS = stopwords.words("portuguese")
-
-
 
 def create_pipeline(params):
     """Create the machine learning pipeline for job matching.
@@ -42,19 +36,16 @@ def create_pipeline(params):
         ("tfidf_ativ", TfidfVectorizer(
             max_features=TFIDF_JOB_DESCRIPTION_MAX_FEATURES,
             ngram_range=TFIDF_JOB_DESCRIPTION_NGRAM_RANGE,
-            stop_words=PT_STOPWORDS,
             strip_accents="unicode" 
         ), "job_description"),
         ("tfidf_comp", TfidfVectorizer(
             max_features=TFIDF_JOB_REQUIREMENTS_MAX_FEATURES,
             ngram_range=TFIDF_JOB_REQUIREMENTS_NGRAM_RANGE,
-            stop_words=PT_STOPWORDS,
             strip_accents="unicode" 
         ), "job_requirements"),
         ("tfidf_cv", TfidfVectorizer(
             max_features=TFIDF_CANDIDATE_CV_MAX_FEATURES,
             ngram_range=TFIDF_CANDIDATE_CV_NGRAM_RANGE,
-            stop_words=PT_STOPWORDS,
             strip_accents="unicode" 
         ), "candidate_cv"),
     ], remainder="drop")

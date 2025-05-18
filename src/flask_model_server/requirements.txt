@@ -1,8 +1,6 @@
 Flask
-torch
 numpy
 pandas
-yfinance
 scikit-learn
 mlflow==2.17.1
 Flask-JWT-Extended
