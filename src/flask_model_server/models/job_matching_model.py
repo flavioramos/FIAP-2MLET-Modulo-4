@@ -62,7 +62,8 @@ def train_model(df):
     """Train the job matching model using the configured pipeline and parameters.
 
     Returns:
-        dict: Training results including status, metrics, and error messages if any
+        tuple: (auc, grid, X_test, y_test) containing the AUC score, trained grid search object,
+               and test data for additional metrics
     """
     print("\n=== Starting Training Process ===")
     params = load_parameters()
@@ -107,5 +108,5 @@ def train_model(df):
     y_pred = grid.predict_proba(X_test)[:, 1]
     auc = roc_auc_score(y_test, y_pred)
 
-    return auc, grid
+    return auc, grid, X_test, y_test
 

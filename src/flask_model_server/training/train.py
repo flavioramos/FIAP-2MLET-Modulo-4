@@ -3,7 +3,11 @@ import json
 import joblib
 import mlflow
 import pandas as pd
-from sklearn.metrics import roc_auc_score
+import numpy as np
+from sklearn.metrics import (
+    roc_auc_score, precision_score, recall_score, f1_score,
+    confusion_matrix, accuracy_score
+)
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
@@ -79,20 +83,64 @@ def run_training():
     step = get_step_count()
 
     with mlflow.start_run():
-        # Log parameters
-        # mlflow.log_param("data_path", base_path)
-
         # Load and process data
         df = load_and_consolidate_jsons()
 
         if df.empty:
             return {"error": "DataFrame vazio após ETL. Verifique os JSONs em base_path."}
 
-        auc, grid = train_model(df)
+        # Log data statistics
+        mlflow.log_metric("total_samples", len(df), step=step)
+        # Log each class distribution separately
+        class_dist = df["status"].value_counts(normalize=True)
+        for class_name, proportion in class_dist.items():
+            mlflow.log_metric(f"class_distribution_{class_name}", float(proportion), step=step)
 
+        auc, grid, X_test, y_test = train_model(df)
+
+        # Get predictions for additional metrics
+        y_pred_proba = grid.predict_proba(X_test)[:, 1]
+        y_pred = (y_pred_proba > 0.5).astype(int)  # Convert probabilities to binary predictions
+
+        # Calculate metrics
+        precision = precision_score(y_test, y_pred)
+        recall = recall_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
+        accuracy = accuracy_score(y_test, y_pred)
+        conf_matrix = confusion_matrix(y_test, y_pred)
+        
         # Log metrics
         mlflow.log_metric("auc", auc, step=step)
         mlflow.log_metric("best_c", grid.best_params_["clf__C"], step=step)
+        mlflow.log_metric("best_cv_score", grid.best_score_, step=step)
+        mlflow.log_metric("mean_cv_score", grid.cv_results_["mean_test_score"].mean(), step=step)
+        mlflow.log_metric("std_cv_score", grid.cv_results_["std_test_score"].mean(), step=step)
+        
+        # Log classification metrics
+        mlflow.log_metric("precision", precision, step=step)
+        mlflow.log_metric("recall", recall, step=step)
+        mlflow.log_metric("f1_score", f1, step=step)
+        mlflow.log_metric("accuracy", accuracy, step=step)
+        
+        # Log confusion matrix metrics
+        tn, fp, fn, tp = conf_matrix.ravel()
+        mlflow.log_metric("true_negatives", tn, step=step)
+        mlflow.log_metric("false_positives", fp, step=step)
+        mlflow.log_metric("false_negatives", fn, step=step)
+        mlflow.log_metric("true_positives", tp, step=step)
+
+        # Log model parameters
+        mlflow.log_params({
+            "tfidf_job_desc_max_features": TFIDF_JOB_DESCRIPTION_MAX_FEATURES,
+            "tfidf_job_req_max_features": TFIDF_JOB_REQUIREMENTS_MAX_FEATURES,
+            "tfidf_candidate_cv_max_features": TFIDF_CANDIDATE_CV_MAX_FEATURES,
+            "test_size": TEST_SIZE,
+            "random_state": RANDOM_STATE,
+            "grid_search_cv": GRID_SEARCH_CV,
+            "grid_search_scoring": GRID_SEARCH_SCORING,
+            "grid_search_n_jobs": GRID_SEARCH_N_JOBS,
+            "logistic_regression_max_iter": LOGISTIC_REGRESSION_MAX_ITER
+        })
 
         # Save model
         os.makedirs(os.path.dirname(MODEL_LOCAL_PATH), exist_ok=True)
@@ -104,5 +152,19 @@ def run_training():
         return {
             "status": "Treinamento concluído com sucesso!",
             "auc": float(auc),
-            "best_c": float(grid.best_params_["clf__C"])
+            "best_c": float(grid.best_params_["clf__C"]),
+            "best_cv_score": float(grid.best_score_),
+            "mean_cv_score": float(grid.cv_results_["mean_test_score"].mean()),
+            "std_cv_score": float(grid.cv_results_["std_test_score"].mean()),
+            "precision": float(precision),
+            "recall": float(recall),
+            "f1_score": float(f1),
+            "accuracy": float(accuracy),
+            "confusion_matrix": {
+                "true_negatives": int(tn),
+                "false_positives": int(fp),
+                "false_negatives": int(fn),
+                "true_positives": int(tp)
+            },
+            "class_distribution": class_dist.to_dict()
         }
