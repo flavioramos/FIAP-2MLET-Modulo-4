@@ -4,3 +4,5 @@ pandas
 scikit-learn
 mlflow==2.17.1
 Flask-JWT-Extended
+pytest
+pytest-flask

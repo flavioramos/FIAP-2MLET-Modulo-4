@@ -11,7 +11,7 @@ import shutil
 
 # Environment detection
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOCAL = sys.argv[-1] == 'local'  # Local session or remote (container)
+LOCAL = sys.argv[-1] == 'local' or os.getenv('LOCAL_RUN') == 'true'  # Local session or remote (container)
 
 print(f"Running locally: {LOCAL}")
 
