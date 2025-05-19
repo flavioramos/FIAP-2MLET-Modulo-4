@@ -10,16 +10,13 @@ from config import MODEL_LOCAL_PATH, STATUS_MAP
 from utils.model_versioning import ModelVersioning
 
 
-def run_prediction(job_description, candidate_cv):
+def run_prediction(principais_atividades, competencia_tecnicas_e_comportamentais, cv_pt):
     """Predict the probability of a candidate being hired for a job.
     
     Args:
-        job_description (dict): Dictionary containing job information
-            {
-                "principais_atividades": str,
-                "competencia_tecnicas_e_comportamentais": str
-            }
-        candidate_cv (str): Candidate's CV text
+        principais_atividades (str): Main activities of the job
+        competencia_tecnicas_e_comportamentais (str): Technical and behavioral requirements
+        cv_pt (str): Candidate's CV text
     
     Returns:
         dict: Prediction results containing:
@@ -38,9 +35,9 @@ def run_prediction(job_description, candidate_cv):
 
         # Prepare input data
         input_data = pd.DataFrame([{
-            "job_description": job_description.get("principais_atividades", ""),
-            "job_requirements": job_description.get("competencia_tecnicas_e_comportamentais", ""),
-            "candidate_cv": candidate_cv
+            "job_description": principais_atividades,
+            "job_requirements": competencia_tecnicas_e_comportamentais,
+            "candidate_cv": cv_pt
         }])
 
         # Make prediction

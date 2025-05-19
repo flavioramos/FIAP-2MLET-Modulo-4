@@ -71,14 +71,15 @@ def predict():
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
     
-    job_description = data.get("job_description")
-    candidate_cv = data.get("candidate_cv")
+    principais_atividades = data.get("principais_atividades")
+    competencia_tecnicas_e_comportamentais = data.get("competencia_tecnicas_e_comportamentais")
+    cv_pt = data.get("cv_pt")
     
-    if not job_description or not candidate_cv:
-        return jsonify({"error": "Both job_description and candidate_cv are required"}), 400
+    if not principais_atividades or not competencia_tecnicas_e_comportamentais or not cv_pt:
+        return jsonify({"error": "All fields (principais_atividades, competencia_tecnicas_e_comportamentais, and cv_pt) are required"}), 400
     
     try:
-        result = run_prediction(job_description, candidate_cv)
+        result = run_prediction(principais_atividades, competencia_tecnicas_e_comportamentais, cv_pt)
         return jsonify(result), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
