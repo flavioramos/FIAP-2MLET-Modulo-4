@@ -1,187 +1,189 @@
-# Stock Prediction with LSTM e MLflow
+# Job Matching API usando Scikit‑Learn, Flask e MLflow
 
-Este projeto implementa uma aplicação para treinamento e previsão de preços de ações utilizando uma rede neural LSTM desenvolvida com PyTorch. A aplicação expõe uma API em Flask para disparar o treinamento, realizar predições e listar artefatos gerados, enquanto o MLflow é utilizado para rastreamento (tracking) dos experimentos de treinamento.
+Este projeto implementa **um serviço de correspondência entre vagas e candidatos (job matching)**.
+A solução utiliza **NLP com vetorização TF‑IDF** para transformar textos em features e **Regressão Logística** (com *Grid Search* para otimização do hiper‑parâmetro **C**) como classificador.
+Todo o experimento é **rastreado pelo MLflow**, e a aplicação expõe uma **API REST em Flask** protegida por **autenticação JWT**.
+
+> **Principais funcionalidades**
+>
+> * Treinamento do modelo a partir de três arquivos JSON (vagas, candidatos e prospects).
+> * Predição da probabilidade de contratação para um candidato em determinada vaga.
+> * Versionamento automático do modelo.
+> * *Tracking* completo de métricas, parâmetros e artefatos no MLflow.
+> * Execução simplificada via **Docker Compose** ou localmente em ambiente virtual.
+
+---
 
 ## Índice
-- Características do Projeto
-- Estrutura do Projeto
-- Pré-requisitos
-- Configuração e Execução
-  - Usando Docker Compose
-  - Execução Local
-- Endpoints da API
-- Parâmetros e Configurações
-- Monitoramento com MLflow
-- Contribuição
-- Licença
 
-## Características do Projeto
+1. [Arquitetura de alto nível](#arquitetura-de-alto-nível)
+2. [Estrutura do repositório](#estrutura-do-repositório)
+3. [Pré‑requisitos](#pré-requisitos)
+4. [Configuração e execução](#configuração-e-execução)
+   1. [Usando Docker Compose](#usando-docker-compose)
+   2. [Execução local](#execução-local)
+5. [Endpoints da API](#endpoints-da-api)
+6. [Parâmetros e personalização](#parâmetros-e-personalização)
+7. [Monitoramento com MLflow](#monitoramento-com-mlflow)
+8. [Testes automatizados](#testes-automatizados)
+9. [Contribuição](#contribuição)
+10. [Licença](#licença)
 
+---
 
-![Diagrama do Projeto](https://lh3.googleusercontent.com/d/1tnj2kYu3lI3pXmBH3kHeaiyqVh5Z7hoi)
+## Arquitetura de alto nível
 
+![Diagrama do Projeto](https://lh3.googleusercontent.com/d/109wiog7azYJ41Gd0o0Os6uEbO2Xw6kET)
 
-**Treinamento de Modelo:**  
-Utiliza dados históricos de ações (obtidos via Yahoo Finance) para treinar um modelo LSTM que realiza previsões de preços de fechamento.
+* **API Flask ** – expõe rota de login para obter token JWT e rotas protegidas para *train* e *predict*.
+* **Camada de ML** – pipeline de pré‑processamento + classificador definido em `models/job_matching_model.py`.
+* **Persistência** – modelo treinado, scaler e arquivos auxiliares são armazenados em volume compartilhado; cada versão recebe sufixo `_vN`.
+* **Observabilidade** – métricas e artefatos são enviados ao MLflow, acessível via navegador.
 
-**Predição:**  
-A API permite que se realize predições para datas futuras (ou para comparar com dados históricos).
+---
 
-**Tracking com MLflow:**  
-Registra os parâmetros, métricas (loss, MAE, RMSE, MAPE) e artefatos (modelo treinado, scaler, etc) para monitoramento dos experimentos.
-
-**Containerização:**  
-O projeto está preparado para execução via Docker, com dois serviços (Flask e MLflow) orquestrados por Docker Compose.
-
-## Estrutura do Projeto
+## Estrutura do repositório
 
 ```
-├── docker-compose.yaml            # Define os serviços (flask_model_server e mlflow_server)
-├── .env                           # Variáveis de ambiente para o Docker Compose
-├── flask_model_server/            
-│   ├── app.py                     # Aplicação Flask com os endpoints (/train, /predict, /artifacts)
-│   ├── config.py                  # Configura diretórios para artefatos, logs e parâmetros
-│   ├── default_params.txt         # Parâmetros padrão (ticker, epochs, learning rate, etc)
-│   ├── Dockerfile                 # Dockerfile para construir a imagem do servidor Flask
-│   ├── local_run.sh               # Script para execução local da aplicação Flask
-│   ├── local_setup.sh             # Script para setup do ambiente virtual local
+├── docker-compose.yaml            # Orquestra API Flask e MLflow
+├── .env                           # Variáveis para Docker Compose
+├── flask_model_server/
+│   ├── app.py                     # API Flask (JWT, /train, /predict)
+│   ├── config.py                  # Diretórios, mapeamentos, hiper‑parâmetros
+│   ├── default_params.txt         # Credenciais padrão + segredos JWT
+│   ├── Dockerfile                 # Imagem da API
+│   ├── local_run.sh               # Execução local
+│   ├── local_setup.sh             # Criação do venv local
 │   ├── models/
-│   │   └── lstm_model.py          # Implementação do modelo LSTM com PyTorch
+│   │   └── job_matching_model.py  # Pipeline TF‑IDF + LogisticRegression
 │   ├── training/
-│   │   ├── train.py               # Script para treinamento do modelo
-│   │   └── predict.py             # Script para realizar predições
-│   └── utils/
-│       ├── config_loader.py       # Carrega os parâmetros de configuração
-│       └── data_utils.py          # Funções para download e pré-processamento de dados
-└── mlflow_server/
-    ├── Dockerfile                 # Dockerfile para construir a imagem do servidor MLflow
-    ├── local_run.sh               # Script para execução local do servidor MLflow
-    ├── local_setup.sh             # Script para setup do ambiente virtual do MLflow
-    └── requirements.txt           # Dependências do MLflow (ex: mlflow==2.17.1)
+│   │   ├── train.py               # Treinamento + GridSearch + MLflow
+│   │   └── predict.py             # Função de predição
+│   ├── utils/
+│   │   ├── config_loader.py       # Carrega / persiste parâmetros
+│   │   └── model_versioning.py    # Versionamento de modelos
+│   └── tests/                     # Pytest para API e lógica
+└── mlflow_server/                 # Container e scripts do MLflow
+    ├── Dockerfile
+    ├── local_run.sh
+    ├── local_setup.sh
+    └── requirements.txt
 ```
 
-## Pré-requisitos
+---
 
-- Docker e Docker Compose (para execução via containers)
-- Python 3.10+ (caso deseje rodar a aplicação localmente sem Docker)
-- CUDA e cuDNN (opcional) – Para utilizar GPU durante o treinamento com PyTorch
+## Pré‑requisitos
 
-## Configuração e Execução
+* **Docker + Docker Compose** (recomendado)
+  ou **Python 3.10+** para execução local.
+
+---
+
+## Configuração e execução
 
 ### Usando Docker Compose
 
-Instale o Docker e o Docker Compose caso ainda não os possua.
-
-Na raiz do projeto, execute o comando:
-
 ```bash
-docker-compose up --build
+# Na raiz do projeto
+docker compose up --build
 ```
 
-Esse comando irá:
-- Construir e iniciar o container do `flask_model_server` (API Flask na porta 5000).
-- Construir e iniciar o container do `mlflow_server` (servidor MLflow na porta 5001).
+* `flask_model_server` → [http://localhost:5000](http://localhost:5000)
+* `mlflow_server`     → [http://localhost:5001](http://localhost:5001)
 
-**Volumes:**  
-Os volumes configurados garantem a persistência de:
-- Artefatos de treinamento (modelo, scaler, arquivos de update)
-- Logs do MLflow
-- Parâmetros de configuração
+Volumes persistem:
 
-### Execução Local
+* Artefatos do modelo (`training_artifacts/`)
+* Logs do MLflow (`mlflow_logs/`)
+* Parâmetros da aplicação (`parameters/params.txt`)
 
-Caso prefira executar a aplicação sem Docker:
-
-#### Para o Servidor Flask
-
-Navegue até o diretório `flask_model_server`:
+### Execução local
 
 ```bash
+# API Flask
 cd flask_model_server
-```
+./local_setup.sh   # cria venv e instala deps
+./local_run.sh     # inicia em http://localhost:5000
 
-Configure o ambiente virtual e instale as dependências:
-
-```bash
+# MLflow (opcional)
+cd ../mlflow_server
 ./local_setup.sh
+./local_run.sh     # inicia em http://localhost:5001
 ```
 
-Inicie a aplicação localmente:
+> Defina a variável `LOCAL_RUN=true` para que `config.py` utilize caminhos locais.
 
-```bash
-./local_run.sh
-```
-
-A aplicação estará disponível em:  
-http://localhost:5000
-
-#### Para o Servidor MLflow
-
-Navegue até o diretório `mlflow_server`:
-
-```bash
-cd mlflow_server
-```
-
-Configure o ambiente virtual e instale as dependências:
-
-```bash
-./local_setup.sh
-```
-
-Inicie o servidor MLflow:
-
-```bash
-./local_run.sh
-```
-
-O MLflow estará disponível em:  
-http://localhost:5001
+---
 
 ## Endpoints da API
 
-A aplicação Flask expõe os seguintes endpoints:
+| Método & Rota     | Descrição                             | Parâmetros                                                                 | Exemplo                                                            |
+| ----------------- | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| **POST /login**   | Gera token JWT                        | `username`, `password`                                                     | `/login` com JSON `{ "username": "user", "password": "password" }` |
+| **GET /train**    | Inicia o treinamento do modelo        | *Nenhum*                                                                   | `GET /train` (header `Authorization: Bearer <token>`)              |
+| **POST /predict** | Prediz a probabilidade de contratação | `principais_atividades`, `competencia_tecnicas_e_comportamentais`, `cv_pt` | `/predict` com JSON                                                |
 
-**GET /train**  
-- **Descrição:** Inicia o processo de treinamento do modelo.  
-- **Parâmetro Opcional:** `reset`  
-  - Exemplo: `/train?reset=true` (para reiniciar o treinamento do zero definindo a data inicial).  
-- **Retorno:** JSON contendo métricas do treinamento (loss, mae, rmse, mape).
+### Exemplo de *payload* para `/predict`
 
-**GET /predict**  
-- **Descrição:** Realiza a predição do preço de fechamento para uma data específica.  
-- **Parâmetro Obrigatório:** `date` no formato YYYY-MM-DD  
-  - Exemplo: `/predict?date=2025-01-15`  
-- **Retorno:** JSON com o valor predito e, se disponível, o valor real para comparação.
+```json
+{
+  "principais_atividades": "Desenvolver APIs REST em Python e Flask",
+  "competencia_tecnicas_e_comportamentais": "Experiência com Docker, AWS, boas práticas de código",
+  "cv_pt": "Engenheiro de software com 6 anos de experiência em Python, Flask, AWS e ML"
+}
+```
 
-## Parâmetros e Configurações
+**Resposta**
 
-**config.py:**  
-Define os diretórios para:
-- **ARTIFACTS_DIR:** Armazenamento dos artefatos (modelo, scaler, arquivos de update).
-- **LOGS_DIR:** Logs do MLflow.
-- **PARAMS_DIR:** Parâmetros do treinamento.
+```json
+{
+  "probability": 0.87,
+  "prediction": "Contratado",
+  "confidence": 0.74,
+  "model_version": 3
+}
+```
 
-O script adapta os caminhos conforme o ambiente (local ou container).
+---
 
-**default_params.txt:**  
-Contém os parâmetros padrão para o treinamento, como:
-- `TICKER` – Símbolo da ação (ex: AAPL)
-- `SEQUENCE_LENGTH` – Comprimento da sequência de entrada
-- `EPOCHS` – Número de épocas de treinamento
-- `LEARNING_RATE` – Taxa de aprendizado
-- `HIDDEN_SIZE` – Número de neurônios na camada oculta
-- `NUM_LAYERS` – Número de camadas LSTM
-- `DATE_ZERO` – Data inicial para o treinamento
+## Parâmetros e personalização
 
-Para alterar os parâmetros, edite o arquivo `params.txt` que é copiado para o diretório de parâmetros conforme as configurações definidas.
+Todos os parâmetros estão em `flask_model_server/config.py` ou em `default_params.txt` (copiado para `parameters/params.txt` na primeira execução).
+Altere valores como:
+
+* `TFIDF_JOB_DESCRIPTION_MAX_FEATURES`, `TFIDF_CANDIDATE_CV_MAX_FEATURES`
+* `GRID_SEARCH_C_VALUES`, `GRID_SEARCH_CV`
+* Credenciais padrão e `JWT_SECRET_KEY`
+
+Para persistir alterações, edite `parameters/params.txt` (carregado por `config_loader.py`).
+
+---
 
 ## Monitoramento com MLflow
 
-**Registro de Experimentos:**  
-Durante o treinamento, os parâmetros, métricas e artefatos são registrados no MLflow.
+* **Experimentos** – Cada execução do `/train` cria um *run* no MLflow com métricas (AUC, precisão, recall, F1, etc.), hiper‑parâmetros e artefatos.
+* **Download de modelos** – A interface web permite baixar qualquer versão treinada.
 
-**Acesso:**  
-A interface do MLflow pode ser acessada através de http://localhost:5001.
+Acesse em \`http://localhost:5001\`.
 
-Utilize esta interface para visualizar o histórico dos experimentos, comparações de métricas e download dos artefatos gerados.
+---
+
+## Testes automatizados
+
+Rodar **pytest** na pasta `flask_model_server/tests`:
+
+```bash
+pytest -q
+```
+
+Os testes cobrem:
+
+* Autenticação (`/login`)
+* Proteção de rotas (`/train`, `/predict`)
+* Funcionalidade de treino e predição (mocks)
+
+---
+
+## Licença
+
+Distribuído sob a licença MIT. Consulte `LICENSE` para mais detalhes.
