@@ -1,3 +1,6 @@
+# Model versioning
+MODEL_VERSION=0
+
 # Training parameters
 TEST_SIZE=0.2
 RANDOM_STATE=42

@@ -20,6 +20,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from utils.config_loader import load_parameters
+from utils.model_versioning import ModelVersioning
 from config import (
     LOGS_DIR, MODEL_LOCAL_PATH, STEP_COUNT_FILE, STATUS_MAP,
     TEST_SIZE, RANDOM_STATE,
@@ -77,7 +78,6 @@ def read_jsons():
         prospects = json.load(f)
 
     return applicants, vagas, prospects
-
 
 def load_and_consolidate_jsons():
     """Load and consolidate data from JSON files into a DataFrame.
@@ -174,15 +174,21 @@ def run_training():
             "logistic_regression_max_iter": LOGISTIC_REGRESSION_MAX_ITER
         })
 
-        # Save model
-        os.makedirs(os.path.dirname(MODEL_LOCAL_PATH), exist_ok=True)
-        joblib.dump(grid.best_estimator_, MODEL_LOCAL_PATH)
-        print(f"Model saved at: {MODEL_LOCAL_PATH}")
+        # Increment model version and save model
+        model_version = ModelVersioning.increment_version()
+        versioned_model_path = ModelVersioning.get_versioned_path()
+        os.makedirs(os.path.dirname(versioned_model_path), exist_ok=True)
+        joblib.dump(grid.best_estimator_, versioned_model_path)
+        print(f"Model version {model_version} saved at: {versioned_model_path}")
+
+        # Update the latest model symlink
+        ModelVersioning.update_latest_symlink(versioned_model_path)
 
         set_step_count(step + 1)
         
         return {
             "status": "Training completed successfully!",
+            "model_version": model_version,
             "auc": float(auc),
             "best_c": float(grid.best_params_["clf__C"]),
             "best_cv_score": float(grid.best_score_),

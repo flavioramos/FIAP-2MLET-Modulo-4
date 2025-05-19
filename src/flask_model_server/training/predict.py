@@ -7,6 +7,7 @@ import os
 import joblib
 import pandas as pd
 from config import MODEL_LOCAL_PATH, STATUS_MAP
+from utils.model_versioning import ModelVersioning
 
 
 def run_prediction(job_description, candidate_cv):
@@ -25,6 +26,7 @@ def run_prediction(job_description, candidate_cv):
             - probability: float, Probability of being hired
             - prediction: str, "Contratado" or "Não contratado"
             - confidence: float, Confidence score between 0 and 1
+            - model_version: int, Version of the model used for prediction
     """
     if not os.path.exists(MODEL_LOCAL_PATH):
         return {"error": "Model not found. Run /train first."}
@@ -32,6 +34,7 @@ def run_prediction(job_description, candidate_cv):
     try:
         # Load the trained model
         model = joblib.load(MODEL_LOCAL_PATH)
+        model_version = ModelVersioning.get_version()
 
         # Prepare input data
         input_data = pd.DataFrame([{
@@ -46,7 +49,8 @@ def run_prediction(job_description, candidate_cv):
         return {
             "probability": float(probability),
             "prediction": "Contratado" if probability > 0.5 else "Não contratado",
-            "confidence": float(abs(probability - 0.5) * 2)  # Convert to 0-1 scale
+            "confidence": float(abs(probability - 0.5) * 2),  # Convert to 0-1 scale
+            "model_version": model_version
         }
 
     except Exception as e:

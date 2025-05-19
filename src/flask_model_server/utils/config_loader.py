@@ -37,3 +37,17 @@ def load_parameters():
         print(f"File {file_path} not found. Using default parameters.")
     
     return params
+
+
+def save_parameters(params):
+    """Save parameters to the configuration file.
+    
+    Args:
+        params (dict): Dictionary containing the parameters to save
+    """
+    file_path = f"{PARAMS_DIR}/params.txt"
+    print(f"Saving parameters to {file_path}")
+    
+    with open(file_path, "w") as f:
+        for key, value in sorted(params.items()):  # Sort keys for consistent ordering
+            f.write(f"{key}={value}\n")
