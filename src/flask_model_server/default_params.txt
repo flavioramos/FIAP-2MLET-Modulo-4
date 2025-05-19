@@ -23,3 +23,8 @@ GRID_SEARCH_CV=5
 GRID_SEARCH_SCORING=roc_auc
 GRID_SEARCH_N_JOBS=-1
 GRID_SEARCH_C_VALUES=[0.1,1,10]
+
+# Authentication
+DEFAULT_USERNAME=user
+DEFAULT_PASSWORD=password
+JWT_SECRET_KEY=your-super-secret-key-change-in-production

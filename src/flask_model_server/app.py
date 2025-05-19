@@ -6,12 +6,50 @@ and making predictions using the trained model.
 
 import os
 from flask import Flask, request, jsonify
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from training.train import run_training
 from training.predict import run_prediction
+import configparser
 
 app = Flask(__name__)
 
+# Load configuration
+config = configparser.ConfigParser()
+config.read('default_params.txt')
+
+# JWT Configuration
+app.config['JWT_SECRET_KEY'] = config.get('Authentication', 'JWT_SECRET_KEY', fallback='your-super-secret-key-change-in-production')
+jwt = JWTManager(app)
+
+# Default credentials
+DEFAULT_USERNAME = config.get('Authentication', 'DEFAULT_USERNAME', fallback='user')
+DEFAULT_PASSWORD = config.get('Authentication', 'DEFAULT_PASSWORD', fallback='password')
+
+@app.route("/login", methods=["POST"])
+def login():
+    """Login endpoint to get JWT token.
+    
+    Returns:
+        tuple: JSON response with access token and HTTP status code
+    """
+    auth = request.get_json()
+    if not auth:
+        return jsonify({"error": "No JSON data provided"}), 400
+    
+    username = auth.get("username")
+    password = auth.get("password")
+    
+    if not username or not password:
+        return jsonify({"error": "Both username and password are required"}), 400
+    
+    if username == DEFAULT_USERNAME and password == DEFAULT_PASSWORD:
+        access_token = create_access_token(identity=username)
+        return jsonify({"access_token": access_token}), 200
+    
+    return jsonify({"error": "Invalid credentials"}), 401
+
 @app.route("/train", methods=["GET"])
+@jwt_required()
 def train():
     """Train the job matching model.
     
@@ -22,6 +60,7 @@ def train():
     return jsonify(result), 200
 
 @app.route("/predict", methods=["POST"])
+@jwt_required()
 def predict():
     """Make a prediction using the trained model.
     
